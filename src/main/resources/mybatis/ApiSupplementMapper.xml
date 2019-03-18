@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ApiSupplement">
+
+     <select id="findByproduct" parameterType="pd" resultType="pd">
+               SELECT tpa.uuid AS 'a',tei.uuid AS 'b',tmi.uuid AS 'c',tml.rate_value7 AS 'd'
+        FROM t_product_type_dictionary ttd,t_product_archives tpa ,t_enterprise_info tei,t_mer_info tmi,t_mer_layout tml ,t_pro_mer_lay_rate_info tpmlri
+        WHERE ttd.type IN ('1','2','3') AND ttd.uuid = tpa.product_type_uuid AND
+        tpa.owner_uuid = tei.uuid AND tpmlri.product_uuid = tpa.uuid AND
+        tpmlri.mer_uuid = tmi.uuid AND tpmlri.mer_layer_uuid = tml.uuid
+        AND tpmlri.mer_default='1';
+     </select>
+    <select id="findByServerConfig" parameterType="pd" resultType="pd">
+      SELECT server_ip,server_falg,server_index from t_h5_server_node_config ORDER BY server_falg
+     </select>
+    <select id="findByServerAppid" parameterType="pd" resultType="pd">
+      SELECT * from t_h5_appid where status = '1'
+    </select>
+    <insert id="addH5PayInfo" parameterType="pd">
+        INSERT INTO `t_trade_info`
+        (`uuid`, `mer_uuid`, `mer_pay_order`, `trade_no`, `money_1`, `money_2`, `number`, `trade_status`, `pay_date`, `pay_time`, `pay_name`, `rate_value12`, `profits_3`, `random_str`, `sign_str`, `return_url`, `notify_url`, `call_type`, `memo1`, `source_status`, `bank_no`, `bank_type`, `writetime`) VALUES
+        (#{uuid},#{mer_uuid} ,#{mer_pay_order},#{trade_no},#{money_1},#{money_2},#{number}, #{trade_status},#{pay_date},#{pay_time},#{pay_name},#{rate_value12},#{profits_3},#{random_str}, #{sign_str}, #{return_url},#{notify_url},#{call_type},#{memo1},#{source_status},#{bank_no},#{bank_type},#{writetime});
+    </insert>
+    <select id="findByTrade" parameterType="pd" resultType="pd">
+      SELECT * from t_trade_info where money_1 = #{money} and trade_status!='TRADE_SUCCESS' writetime > #{writetime} ORDER BY writetime desc;
+     </select>
+    <select id="findByMerLayout" parameterType="pd" resultType="pd">
+      SELECT rate_value7 from t_mer_layout where mer_uuid = #{mer_uuid} and memo_1 ='0';
+     </select>
+    <update id="updateTrade" parameterType="pd">
+      UPDATE `t_trade_info` SET `trade_status`='TRADE_SUCCESS', `memo1`=#{no} WHERE (`uuid`=#{uuid});
+    </update>
+</mapper>
